@@ -66,13 +66,16 @@ import java.time.YearMonth;
 import java.time.temporal.ChronoUnit;
 import java.time.temporal.TemporalAdjuster;
 import java.time.temporal.TemporalAdjusters;
+import java.time.temporal.TemporalUnit;
 import java.util.Arrays;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.function.Function;
 import java.util.stream.Collectors;
+import java.util.stream.LongStream;
 import java.util.stream.Stream;
 
 @Service
@@ -241,7 +244,7 @@ public class BillingManager {
         try {
             final SearchResponse searchResponse = elasticsearchClient.search(searchRequest);
             final ParsedDateHistogram histogram = searchResponse.getAggregations().get(HISTOGRAM_AGGREGATION_NAME);
-            return parseHistogram(interval, histogram);
+            return parseHistogram(from, to, interval, histogram);
         } catch (IOException e) {
             log.error(e.getMessage(), e);
             throw new SearchException(e.getMessage(), e);
@@ -430,10 +433,66 @@ public class BillingManager {
         searchRequest.source(searchSource);
     }
 
-    private List<BillingChartInfo> parseHistogram(final DateHistogramInterval interval,
+    private List<BillingChartInfo> parseHistogram(final LocalDate from,
+                                                  final LocalDate to,
+                                                  final DateHistogramInterval interval,
                                                   final ParsedDateHistogram histogram) {
-        return histogram.getBuckets().stream()
+        final List<BillingChartInfo> chartInfo = histogram.getBuckets().stream()
             .map(bucket -> getChartInfo(bucket, interval))
+            .collect(Collectors.toList());
+        return CollectionUtils.isNotEmpty(chartInfo)
+               ? extendBillingToWholePeriod(chartInfo, from, to, convertHistogramIntervalToTemporalUnit(interval))
+               : chartInfo;
+    }
+
+    private static TemporalUnit convertHistogramIntervalToTemporalUnit(final DateHistogramInterval interval) {
+        if (DateHistogramInterval.DAY.equals(interval)) {
+            return ChronoUnit.DAYS;
+        } else if (DateHistogramInterval.WEEK.equals(interval)) {
+            return ChronoUnit.WEEKS;
+        } else if (DateHistogramInterval.MONTH.equals(interval)) {
+            return ChronoUnit.MONTHS;
+        } else if (DateHistogramInterval.YEAR.equals(interval)) {
+            return ChronoUnit.YEARS;
+        }
+        throw new IllegalArgumentException("Unknown histogram interval!");
+    }
+
+    private List<BillingChartInfo> extendBillingToWholePeriod(final List<BillingChartInfo> received,
+                                                              final LocalDate from, final LocalDate to,
+                                                              final TemporalUnit interval) {
+        final BillingChartInfo firstFound = received.get(0);
+        final BillingChartInfo lastFound = received.get(received.size() - 1);
+        final List<BillingChartInfo> before = generateBillingPeriod(from,
+                                                                    firstFound.getPeriodStart()
+                                                                        .toLocalDate(),
+                                                                    interval,
+                                                                    0L,
+                                                                    firstFound.getGroupingInfo());
+        final List<BillingChartInfo> after = generateBillingPeriod(lastFound.getPeriodStart()
+                                                                       .toLocalDate().plus(1, interval),
+                                                                   to.plusDays(1L),
+                                                                   interval,
+                                                                   lastFound.getAccumulatedCost(),
+                                                                   lastFound.getGroupingInfo());
+        return Stream.of(before, received, after)
+            .flatMap(Collection::stream)
+            .collect(Collectors.toList());
+    }
+
+    private List<BillingChartInfo> generateBillingPeriod(final LocalDate from, final LocalDate to,
+                                                         final TemporalUnit interval,
+                                                         final Long accumulated, final Map<String, String> grouping) {
+        return LongStream.range(0, from.until(to, interval))
+            .mapToObj(days -> from.plus(days, interval))
+            .map(LocalDate::atStartOfDay)
+            .map(date -> BillingChartInfo.builder()
+                .cost(0L)
+                .groupingInfo(grouping)
+                .accumulatedCost(accumulated)
+                .periodStart(date)
+                .periodEnd(date.plus(1, interval).minusSeconds(1))
+                .build())
             .collect(Collectors.toList());
     }
 
