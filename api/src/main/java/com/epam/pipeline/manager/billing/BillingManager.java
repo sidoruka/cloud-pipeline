@@ -212,12 +212,12 @@ public class BillingManager {
         final LocalDate from = request.getFrom();
         final LocalDate to = request.getTo();
         if (from.isAfter(to)) {
-            throw new IllegalStateException(messageHelper
-                                                .getMessage(MessageConstants.ERROR_BILLING_FROM_DATE_AFTER_TO));
+            throw new IllegalArgumentException(messageHelper
+                                                   .getMessage(MessageConstants.ERROR_BILLING_FROM_DATE_AFTER_TO));
         }
         if (from.isAfter(currentDate)) {
-            throw new IllegalStateException(messageHelper
-                                                .getMessage(MessageConstants.ERROR_BILLING_ONCOMING_FROM_DATE));
+            throw new IllegalArgumentException(messageHelper
+                                                   .getMessage(MessageConstants.ERROR_BILLING_ONCOMING_FROM_DATE));
         }
 
         final BillingChartRequest.BillingChartRequestBuilder requestBuilder = request.toBuilder();
@@ -265,13 +265,18 @@ public class BillingManager {
         setFiltersAndPeriodForSearchRequest(from, to, filters, searchSource, searchRequest);
 
         try {
-            final SearchResponse searchResponse = elasticsearchClient.search(searchRequest);
-            final ParsedDateHistogram histogram = searchResponse.getAggregations().get(HISTOGRAM_AGGREGATION_NAME);
+            final ParsedDateHistogram histogram = getBillingHistogram(elasticsearchClient, searchRequest);
             return parseHistogram(interval, histogram);
         } catch (IOException e) {
             log.error(e.getMessage(), e);
             throw new SearchException(e.getMessage(), e);
         }
+    }
+
+    ParsedDateHistogram getBillingHistogram(final RestHighLevelClient elasticsearchClient,
+                                            final SearchRequest searchRequest) throws IOException {
+        final SearchResponse searchResponse = elasticsearchClient.search(searchRequest);
+        return searchResponse.getAggregations().get(HISTOGRAM_AGGREGATION_NAME);
     }
 
     private List<BillingChartInfo> getBillingStats(final RestHighLevelClient elasticsearchClient,
