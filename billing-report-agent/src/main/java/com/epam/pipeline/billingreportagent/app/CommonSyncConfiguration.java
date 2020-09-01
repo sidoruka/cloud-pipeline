@@ -27,6 +27,7 @@ import com.epam.pipeline.billingreportagent.service.impl.converter.FileShareMoun
 import com.epam.pipeline.billingreportagent.service.impl.converter.GcpStoragePriceListLoader;
 import com.epam.pipeline.billingreportagent.service.impl.converter.PriceLoadingMode;
 import com.epam.pipeline.billingreportagent.service.impl.converter.StoragePricingService;
+import com.epam.pipeline.billingreportagent.service.impl.loader.CloudRegionLoader;
 import com.epam.pipeline.billingreportagent.service.impl.synchronizer.PipelineRunSynchronizer;
 import com.epam.pipeline.billingreportagent.service.impl.synchronizer.StorageSynchronizer;
 import com.epam.pipeline.billingreportagent.service.impl.converter.StorageToBillingRequestConverter;
@@ -157,10 +158,12 @@ public class CommonSyncConfiguration {
     @ConditionalOnProperty(value = "sync.storage.gs.disable", matchIfMissing = true, havingValue = FALSE)
     public StorageSynchronizer gsSynchronizer(final StorageLoader loader,
                                               final ElasticIndexService indexService,
-                                              final ElasticsearchServiceClient elasticsearchClient) {
+                                              final ElasticsearchServiceClient elasticsearchClient,
+                                              final CloudRegionLoader cloudRegionLoader,
+                                              final @Value("${kube.namespace:default}") String kubeNamespace) {
         final StorageBillingMapper mapper = new StorageBillingMapper(SearchDocumentType.GS_STORAGE, billingCenterKey);
         final StoragePricingService pricingService =
-                new StoragePricingService(new GcpStoragePriceListLoader());
+                new StoragePricingService(new GcpStoragePriceListLoader(cloudRegionLoader, kubeNamespace));
         return new StorageSynchronizer(storageMapping,
                 commonIndexPrefix,
                 storageIndexName,
