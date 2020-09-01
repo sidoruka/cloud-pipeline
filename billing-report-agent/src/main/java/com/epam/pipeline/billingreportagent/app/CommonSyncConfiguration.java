@@ -159,11 +159,10 @@ public class CommonSyncConfiguration {
     public StorageSynchronizer gsSynchronizer(final StorageLoader loader,
                                               final ElasticIndexService indexService,
                                               final ElasticsearchServiceClient elasticsearchClient,
-                                              final CloudRegionLoader cloudRegionLoader,
-                                              final @Value("${kube.namespace:default}") String kubeNamespace) {
+                                              final CloudRegionLoader cloudRegionLoader) {
         final StorageBillingMapper mapper = new StorageBillingMapper(SearchDocumentType.GS_STORAGE, billingCenterKey);
         final StoragePricingService pricingService =
-                new StoragePricingService(new GcpStoragePriceListLoader(cloudRegionLoader, kubeNamespace));
+                new StoragePricingService(new GcpStoragePriceListLoader(cloudRegionLoader));
         return new StorageSynchronizer(storageMapping,
                 commonIndexPrefix,
                 storageIndexName,
