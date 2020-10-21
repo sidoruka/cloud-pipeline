@@ -16,10 +16,26 @@
 
 package com.epam.pipeline.test.creator.datastorage;
 
+import com.epam.pipeline.controller.vo.data.storage.UpdateDataStorageItemVO;
+import com.epam.pipeline.entity.datastorage.DataStorageDownloadFileUrl;
+import com.epam.pipeline.entity.datastorage.DataStorageFile;
+import com.epam.pipeline.entity.datastorage.DataStorageItemContent;
+import com.epam.pipeline.entity.datastorage.DataStorageListing;
+import com.epam.pipeline.entity.datastorage.DataStorageStreamingContent;
+import com.epam.pipeline.entity.datastorage.DataStorageWithShareMount;
+import com.epam.pipeline.entity.datastorage.FileShareMount;
+import com.epam.pipeline.entity.datastorage.PathDescription;
+import com.epam.pipeline.entity.datastorage.StorageMountPath;
+import com.epam.pipeline.entity.datastorage.StorageUsage;
 import com.epam.pipeline.entity.datastorage.aws.S3bucketDataStorage;
+import com.epam.pipeline.entity.datastorage.rules.DataStorageRule;
 
-import static com.epam.pipeline.test.creator.CommonCreatorConstants.TEST_STRING;
+import java.io.InputStream;
+import java.util.Collections;
+import java.util.List;
+
 import static com.epam.pipeline.test.creator.CommonCreatorConstants.ID;
+import static com.epam.pipeline.test.creator.CommonCreatorConstants.TEST_STRING;
 
 public final class DatastorageCreatorUtils {
 
@@ -29,5 +45,77 @@ public final class DatastorageCreatorUtils {
 
     public static S3bucketDataStorage getS3bucketDataStorage() {
         return new S3bucketDataStorage(ID, TEST_STRING, TEST_STRING);
+    }
+
+    public static S3bucketDataStorage getS3bucketDataStorage(Long id, String owner) {
+        final S3bucketDataStorage s3bucket = new S3bucketDataStorage(id, TEST_STRING, TEST_STRING);
+        s3bucket.setOwner(owner);
+        return s3bucket;
+    }
+
+    public static DataStorageWithShareMount getDataStorageWithShareMount() {
+        final DataStorageWithShareMount storageShareMount = new DataStorageWithShareMount(
+                getS3bucketDataStorage(), new FileShareMount());
+        return storageShareMount;
+    }
+
+    public static DataStorageListing getDataStorageListing() {
+        return new DataStorageListing();
+    }
+
+    public static DataStorageFile getDataStorageFile() {
+        return new DataStorageFile();
+    }
+
+    public static UpdateDataStorageItemVO getUpdateDataStorageItemVO() {
+        return new UpdateDataStorageItemVO();
+    }
+
+    public static DataStorageDownloadFileUrl getDataStorageDownloadFileUrl() {
+        return new DataStorageDownloadFileUrl();
+    }
+
+    public static DataStorageRule getDataStorageRule() {
+        return new DataStorageRule();
+    }
+
+    public static DataStorageItemContent getDefaultDataStorageItemContent() {
+        return new DataStorageItemContent();
+    }
+
+    public static DataStorageStreamingContent getDefaultDataStorageStreamingContent(InputStream inputStream) {
+        return new DataStorageStreamingContent(inputStream, TEST_STRING);
+    }
+
+    public static PathDescription getPathDescription() {
+        return new PathDescription();
+    }
+
+    public static StorageUsage getStorageUsage() {
+        return StorageUsage.builder().build();
+    }
+
+    public static StorageMountPath getStorageMountPath() {
+        return new StorageMountPath(TEST_STRING, getS3bucketDataStorage(), new FileShareMount());
+    }
+
+    public static List<UpdateDataStorageItemVO> getUpdateDataStorageItemVOList() {
+        return Collections.singletonList(getUpdateDataStorageItemVO());
+    }
+
+    public static List<DataStorageFile> getDataStorageFileList() {
+        return Collections.singletonList(getDataStorageFile());
+    }
+
+    public static List<DataStorageDownloadFileUrl> getDataStorageDownloadFileUrlList() {
+        return Collections.singletonList(getDataStorageDownloadFileUrl());
+    }
+
+    public static List<DataStorageRule> getDataStorageRuleList() {
+        return Collections.singletonList(getDataStorageRule());
+    }
+
+    public static List<PathDescription> getPathDescriptionList() {
+        return Collections.singletonList(getPathDescription());
     }
 }
