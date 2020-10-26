@@ -53,10 +53,15 @@ public final class DatastorageCreatorUtils {
         return s3bucket;
     }
 
+    public static S3bucketDataStorage getS3bucketDataStorage(Long id, String owner, boolean shared) {
+        final S3bucketDataStorage s3bucket = new S3bucketDataStorage(id, TEST_STRING, TEST_STRING);
+        s3bucket.setOwner(owner);
+        s3bucket.setShared(shared);
+        return s3bucket;
+    }
+
     public static DataStorageWithShareMount getDataStorageWithShareMount() {
-        final DataStorageWithShareMount storageShareMount = new DataStorageWithShareMount(
-                getS3bucketDataStorage(), new FileShareMount());
-        return storageShareMount;
+        return new DataStorageWithShareMount(getS3bucketDataStorage(), new FileShareMount());
     }
 
     public static DataStorageListing getDataStorageListing() {
