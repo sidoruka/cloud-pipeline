@@ -16,6 +16,7 @@
 
 package com.epam.pipeline.test.creator.datastorage;
 
+import com.epam.pipeline.controller.vo.DataStorageVO;
 import com.epam.pipeline.controller.vo.data.storage.UpdateDataStorageItemVO;
 import com.epam.pipeline.entity.datastorage.DataStorageDownloadFileUrl;
 import com.epam.pipeline.entity.datastorage.DataStorageFile;
@@ -81,7 +82,9 @@ public final class DatastorageCreatorUtils {
     }
 
     public static DataStorageRule getDataStorageRule() {
-        return new DataStorageRule();
+        DataStorageRule dataStorageRule = new DataStorageRule();
+        dataStorageRule.setPipelineId(ID);
+        return dataStorageRule;
     }
 
     public static DataStorageItemContent getDefaultDataStorageItemContent() {
@@ -102,6 +105,16 @@ public final class DatastorageCreatorUtils {
 
     public static StorageMountPath getStorageMountPath() {
         return new StorageMountPath(TEST_STRING, getS3bucketDataStorage(), new FileShareMount());
+    }
+
+    public static FileShareMount getFileShareMount() {
+        return new FileShareMount();
+    }
+
+    public static DataStorageVO getDataStorageVO() {
+        DataStorageVO dataStorageVO = new DataStorageVO();
+        dataStorageVO.setId(ID);
+        return dataStorageVO;
     }
 
     public static List<UpdateDataStorageItemVO> getUpdateDataStorageItemVOList() {
