@@ -18,6 +18,7 @@ package com.epam.pipeline.test.creator.datastorage;
 
 import com.epam.pipeline.controller.vo.DataStorageVO;
 import com.epam.pipeline.controller.vo.data.storage.UpdateDataStorageItemVO;
+import com.epam.pipeline.entity.datastorage.DataStorageAction;
 import com.epam.pipeline.entity.datastorage.DataStorageDownloadFileUrl;
 import com.epam.pipeline.entity.datastorage.DataStorageFile;
 import com.epam.pipeline.entity.datastorage.DataStorageItemContent;
@@ -28,6 +29,7 @@ import com.epam.pipeline.entity.datastorage.FileShareMount;
 import com.epam.pipeline.entity.datastorage.PathDescription;
 import com.epam.pipeline.entity.datastorage.StorageMountPath;
 import com.epam.pipeline.entity.datastorage.StorageUsage;
+import com.epam.pipeline.entity.datastorage.TemporaryCredentials;
 import com.epam.pipeline.entity.datastorage.aws.S3bucketDataStorage;
 import com.epam.pipeline.entity.datastorage.rules.DataStorageRule;
 
@@ -117,6 +119,16 @@ public final class DatastorageCreatorUtils {
         return dataStorageVO;
     }
 
+    public static TemporaryCredentials getTemporaryCredentials() {
+        return new TemporaryCredentials();
+    }
+
+    public static DataStorageAction getDataStorageAction() {
+        final DataStorageAction dataStorageAction = new DataStorageAction();
+        dataStorageAction.setId(ID);
+        return dataStorageAction;
+    }
+
     public static List<UpdateDataStorageItemVO> getUpdateDataStorageItemVOList() {
         return Collections.singletonList(getUpdateDataStorageItemVO());
     }
@@ -135,5 +147,9 @@ public final class DatastorageCreatorUtils {
 
     public static List<PathDescription> getPathDescriptionList() {
         return Collections.singletonList(getPathDescription());
+    }
+
+    public static List<DataStorageAction> getDataStorageActionList() {
+        return Collections.singletonList(getDataStorageAction());
     }
 }
