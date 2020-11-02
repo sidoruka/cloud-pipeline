@@ -17,8 +17,6 @@
 package com.epam.pipeline.test.creator;
 
 import java.util.Collections;
-import java.util.HashMap;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -31,22 +29,10 @@ public final class CommonCreatorConstants {
     public static final String TEST_STRING = "TEST";
     public static final List<String> TEST_STRING_LIST = Collections.singletonList(TEST_STRING);
     public static final byte[] TEST_ARRAY = {1, 1, 1};
-    public static final Map<String, String> TEST_STRING_MAP = getTestMap();
-    public static final Set<String> TEST_STRING_SET = getTestSet();
+    public static final Map<String, String> TEST_STRING_MAP = Collections.singletonMap(TEST_STRING, TEST_STRING);
+    public static final Set<String> TEST_STRING_SET = Collections.emptySet();
 
     private CommonCreatorConstants() {
 
-    }
-
-    private static Map<String, String> getTestMap() {
-        Map<String, String> map = new HashMap<>();
-        map.put(TEST_STRING, TEST_STRING);
-        return map;
-    }
-
-    private static Set<String> getTestSet() {
-        Set<String> set = new HashSet<>();
-        set.add(TEST_STRING);
-        return set;
     }
 }
